@@ -88,11 +88,39 @@ class Dog:
             return None
         
     
+    
+    @classmethod
+    def find_by_name(cls,name):
+        sql="SELECT * FROM dogs WHERE name=? LIMIT 1"
+        dog=CURSOR.execute(sql,(name,)).fetchone()
+        if dog:
+            return cls.new_from_db(dog)
+        else:
+            return None
+        
+    
     @classmethod
     def find_by_id(cls,id):
         sql="SELECT * FROM dogs WHERE id=?"
         dog=CURSOR.execute(sql,(id,)).fetchone()
         return cls.new_from_db(dog)
-
+    
     @classmethod
-    def 
+    def find_or_create_by(cls, name, breed):
+            existing_dog = cls.find_by_name(name)
+            if existing_dog:
+                 return existing_dog
+            else:
+                 return cls.create(name, breed)
+  
+    def update(self):
+        if self.id is not None:
+            sql = "UPDATE dogs SET name=? WHERE id=?"
+            CURSOR.execute(sql, (self.name, self.id))
+            CONN.commit()
+    
+    @classmethod
+    def drop_table(self):
+        sql="DROP TABLE IF EXISTS dogs"
+        CURSOR.execute(sql)
+        CONN.commit()
